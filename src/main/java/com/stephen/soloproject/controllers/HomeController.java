@@ -22,8 +22,13 @@ public class HomeController {
 	@GetMapping("/")
 	public String index(Model model) {
 		model.addAttribute("newUser", new User());
-		model.addAttribute("newLogin", new LoginUser());
-		return "index.jsp";
+		return "registration.jsp";
+	}
+	
+	@GetMapping("/login")
+	public String loginPage(Model model) {
+	    model.addAttribute("newLogin", new LoginUser());
+	    return "logIn.jsp";
 	}
 	
 	@PostMapping("/register")
@@ -34,7 +39,7 @@ public class HomeController {
 		
 		if(result.hasErrors()) {
 			model.addAttribute("newLogin", new LoginUser());
-			return "index.jsp";
+			return "registration.jsp";
 		}else {
 			session.setAttribute("userId", user.getId());
 			return "redirect:/dashboard";
@@ -50,7 +55,7 @@ public class HomeController {
 		
 		if(result.hasErrors() || user==null) {
 			model.addAttribute("newUser",new User());
-			return "index.jsp";
+			return "logIn.jsp";
 		}
 			session.setAttribute("userId", user.getId());
 			return "redirect:/dashboard";
@@ -60,7 +65,7 @@ public class HomeController {
 	@GetMapping("/logout")
 	public String logout(HttpSession session) {
 		session.removeAttribute("userId");
-		return "redirect:/";
+		return "redirect:/login";
 	}
 	
 	

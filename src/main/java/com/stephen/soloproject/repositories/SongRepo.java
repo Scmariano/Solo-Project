@@ -10,4 +10,6 @@ import com.stephen.soloproject.models.Song;
 @Repository
 public interface SongRepo extends CrudRepository<Song, Long> {
 	public List<Song>findAll();
+	public List<Song>findBySetId(Long id);
+	
 }

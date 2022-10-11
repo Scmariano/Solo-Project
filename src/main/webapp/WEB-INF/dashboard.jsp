@@ -9,48 +9,65 @@
 <head>
 <meta charset="ISO-8859-1">
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" >
+<link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300&family=Mukta:wght@300&family=Open+Sans:wght@500&family=Tajawal&display=swap" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/index.css">
 <title>Set List</title>
 </head>
 <body>
-
-	<div class="container-fluid">
-		<div class="container mx-auto mt-4">
-			<header class="row justify-content-between align-items-center">
-				<div class="text-start">
-					<h4>Hello, ${user.name}!</h4>
-				</div>
-				<div class="col-5 text-start">
-					<p>This is all the event!</p>
-				</div>
-				<div class="col-5 d-flex justify-content-end">
-					<a href="/events/new" class="nav-link">Add Event</a><a href="/logout" class="nav-link">Logout</a>
-				</div>
-			</header>
-		</div>
-		<div class="row mx-auto mt-3">
-			<table class="table table-striped table-bordered caption-top">
-				<thead class="table-info">
-					<tr class="align-middle">
-						<th>Event Name</th>
-						<th>Date</th>
-						<th>Address</th>
-						<th>Lead</th>
-					</tr>
-				</thead>
-				<tbody>
-					<c:forEach var="set" items="${events}">
-						<tr>
-							<td><a href="/events/${set.id}" class="nav-link"><c:out value="${set.setTitle}"/></a></td>
-							<td><fmt:formatDate value="${set.setDate}" pattern="MM/dd/yy"/>						
-							<td><c:out value="${set.address}" /></td>
-							<td><c:out value="${set.user.name}" /></td>
+	<div class="main">
+		<div class="container-fluid">
+			<div class="  mx-auto mt-4">
+				<header class="header-b row justify-content-between align-items-center p-3">
+					<div class="text-start">
+						<h4>Hello, ${user.name}!</h4>
+					</div>
+					<div class="col-5 text-start">
+						<p>This is all the event!</p>
+					</div>
+					<div class="col-5 d-flex justify-content-end">
+						<a href="/events/new" class="nav-link image-link">Add Event</a>
+						<a href="/logout" class="nav-link danger">Logout</a>
+					</div>
+				</header><hr>
+			</div>
+			<div class="container row mx-auto mt-3 p-4">
+				<table class="table table-striped table-bordered caption-top ">
+					<thead class="table-info">
+						<tr class="align-middle">
+							<th>Event Name</th>
+							<th>Date</th>
+							<th>Address</th>
+							<th>Lead</th>
+							<th>Total Likes</th>
+							<th>Like/Unlike</th>
 						</tr>
-					</c:forEach>
-				</tbody>
-			</table>
+					</thead>
+					<tbody>
+						<c:forEach var="set" items="${events}">
+							<tr>
+								<td><a href="/events/${set.id}" class="nav-link"><c:out value="${set.setTitle}"/></a></td>
+								<td><fmt:formatDate value="${set.setDate}" pattern="MMMM dd-yyyy"/>						
+								<td><c:out value="${set.address}" /></td>
+								<td><c:out value="${set.user.name}" /></td>
+								<td class= "text-center">${set.likers.size()}</td>
+								<td>
+									<c:choose>
+										<c:when test="${set.likers.contains(user)}">
+											<a href="/events/${set.id}/unLike" class="nav-link danger">Unlike</a>
+										</c:when>
+										<c:otherwise>
+											<a href="/events/${set.id}/like" class="nav-link danger">Like</a>
+										</c:otherwise>
+									</c:choose>
+								</td>
+							</tr>
+						</c:forEach>
+					</tbody>
+				</table>
+			</div>
 		</div>
 	</div>
-	
-
 </body>
 </html>

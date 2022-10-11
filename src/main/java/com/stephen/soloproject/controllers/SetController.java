@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.stephen.soloproject.models.Musician;
 import com.stephen.soloproject.models.Set;
@@ -29,7 +30,7 @@ public class SetController {
 	@Autowired SongServ songServ;
 	@Autowired MusicianServ musicianServ;
 	
-	
+	// View all the Event
 	@GetMapping("/dashboard")
 	public String dashboard(HttpSession session, Model model) {
 		Long userId = (Long) session.getAttribute("userId");
@@ -42,6 +43,7 @@ public class SetController {
 		}
 	}
 	
+	//GetMapping for rendering a page to add an Event
 	@GetMapping("/events/new")
 	public String newEvent(@ModelAttribute("sets") Set set, HttpSession session, Model model) {
 		User loggedUser = userServ.findById((Long) session.getAttribute("userId"));
@@ -53,6 +55,7 @@ public class SetController {
 		}
 	}
 	
+	// Create an Event
 	@PostMapping("/events/create")
 	public String createEvent(@Valid @ModelAttribute("sets")Set set, BindingResult result,
 			HttpSession session) {
@@ -69,34 +72,46 @@ public class SetController {
 		}
 	}
 	
+	// Show an Event with a Set List of Songs and Musicians
 	@GetMapping("/events/{id}")
-	public String showEvents(@PathVariable("id") Long id, HttpSession session, Model model) {
+	public String showEvents(@PathVariable("id") Long id,
+	        HttpSession session, Model model) {
 		Long userId = (Long) session.getAttribute("userId");
 		if(userId == null) {
 			return "redirect:/logout";
 		} else {
+			
 			model.addAttribute("event", setServ.findSetId(id));
 			model.addAttribute("songs", songServ.allSongs());
 			model.addAttribute("user", userServ.findById(userId));
+			model.addAttribute("like", setServ.findLikerId(userId));
 			return "showEvent.jsp";
 		}
 	
 	}
 	
+	//GetMapping for rendering a new page for Adding a Song
 	@GetMapping("/songs/new/{id}")
-	public String newSong(@ModelAttribute("song") Song song, @PathVariable("id") Long id, HttpSession session, Model model) {
+	public String newSong( @PathVariable("id") Long id, HttpSession session, Model model,
+	        @ModelAttribute("song") Song song) {
 		Long userId = (Long) session.getAttribute("userId");
 		if(userId == null) {
 			return "redirect:/logout";
 		}else {
 			model.addAttribute("set", setServ.findSetId(id));
+			model.addAttribute("user", userServ.findById(userId));
+			model.addAttribute("songs", songServ.allSongs());
 			return "newSong.jsp";
 		}
 	}
 	
+	
+	//Create a Song!
 	@PostMapping("/songs/create")
-	public String createSong(@Valid @ModelAttribute("song") Song song, BindingResult result, HttpSession session) {
+	public String createSong(@Valid @ModelAttribute("song") Song song, BindingResult result, HttpSession session,
+			Model model) {
 		Long userId = (Long) session.getAttribute("userId");
+		User loggedUser = userServ.findById(userId);
 		if(userId == null) {
 			return "redirect:/logout";
 		}
@@ -104,11 +119,15 @@ public class SetController {
 			return "newSong.jsp";
 		}
 		else {
+			song.setCreator(loggedUser);
 			songServ.createSong(song);
+			loggedUser.getSongs().add(song);
+			userServ.updateUser(loggedUser);
 			return "redirect:/events/" + song.getSet().getId();
 		}
 	}
-	
+
+	//GetMapping for rendering a page for creating a Musician
 	@GetMapping("/musicians/new/{id}")
 	public String newMusician(@ModelAttribute("musician") Musician musician, @PathVariable("id")Long id, HttpSession session,
 			Model model) {
@@ -121,6 +140,7 @@ public class SetController {
 		}
 	}
 	
+	//Create a Musician
 	@PostMapping("/musicians/create")
 	public String createMusician(@Valid @ModelAttribute("musician")Musician musician, BindingResult result, HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
@@ -136,21 +156,22 @@ public class SetController {
 		
 	}
 	
-	
+	// Show a song
 	@GetMapping("/songs/{id}")
-	public String showSong(@PathVariable("id") Long id, Model model, HttpSession session) {
+	public String showSong(@PathVariable("id") Long id,
+			Model model, HttpSession session, @ModelAttribute("user") User user) {
 		User loggedUser = userServ.findById((Long) session.getAttribute("userId"));
 		if(loggedUser == null) {
 			return "redirect:/logout";
 		}else {
 			model.addAttribute("song", songServ.findSongId(id));
-			model.addAttribute("user", loggedUser);
+			model.addAttribute("user",loggedUser );
 			return "showSong.jsp";
 		}
 	}
 	
 	
-	
+	// Edit a song
 	@GetMapping("/songs/edit/{id}")
 	public String editSong(@PathVariable("id")Long id, Model model, HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
@@ -163,7 +184,20 @@ public class SetController {
 		}
 	}
 	
-		
+	//Edit an event
+	@GetMapping("events/edit/{id}")
+	public String editSet(@PathVariable("id")Long id, Model model, HttpSession session) {
+	    Long userId = (Long) session.getAttribute("userId");
+        if(userId==null) {
+            return "redirect:/logout";
+        }else {
+            model.addAttribute("set", setServ.findSetId(id));
+            model.addAttribute("user", userServ.findById(userId));
+            return "editSet.jsp";
+        }
+	}
+	
+	// Update a Song
 	@PutMapping("/songs/update/{id}")
 	public String updateSong(@Valid @ModelAttribute("song") Song song, BindingResult result, HttpSession session) {
 		Long userId = (Long) session.getAttribute("userId");
@@ -179,13 +213,92 @@ public class SetController {
     		return "redirect:/events/" + song.getSet().getId();
     	}
 	}
+	
+	//Update an event
+	@PutMapping("events/update/{id}")
+	public String updateSet(@Valid @ModelAttribute("set")Set set, BindingResult result, HttpSession session) {
+	    Long userId = (Long) session.getAttribute("userId");
+        
+        if(userId == null) {
+            return "redirect:/logout";
+        }
+        
+        if (result.hasErrors()) {
+            return "editSet.jsp";
+        }else {
+            setServ.updateSet(set);
+            return "redirect:/dashboard";
+        }
+	}
 		
+	
+	//GetMapping for liking an event
+	@GetMapping("/events/{id}/like")
+	public String likeSet(@PathVariable("id") Long id, HttpSession session) {
+		Set set = setServ.findSetId(id);
+		Long userId = (Long) session.getAttribute("userId");
+		User loggedUser = userServ.findById(userId);
+		setServ.likeSet(set, loggedUser);
+		return "redirect:/dashboard";
+	}
+	
+	//GetMapping for unliking an event
+	@GetMapping("/events/{id}/unLike")
+	public String unLikeSet(@PathVariable("id") Long id, HttpSession session) {
+		Set set = setServ.findSetId(id);
+		Long userId = (Long) session.getAttribute("userId");
+		User loggedUser = userServ.findById(userId);
+		setServ.unLikeSet(set, loggedUser);
+		return "redirect:/dashboard";
+	}
+	
+	// Delete the entire set
+	@RequestMapping("/events/{id}/delete")
+	public String destroySet(@PathVariable("id")Long id, HttpSession session) {
+	    Long userId = (Long) session.getAttribute("userId");
+        if(userId == null) {
+            return "redirect:/logout";
+        }
+        // make sure to delete all the songs
+        for(Song song:songServ.setSongs(id)) {
+            songServ.deleteSong(song);
+        }
+        // make sure to delete all the musicians also
+        for(Musician musician:musicianServ.findMusiciansId(id)) {
+            musicianServ.deleteMusicians(musician);
+        }
+        //execute 
+        setServ.deleteSet(id);
+        return "redirect:/dashboard";
+	}
+	
+	// A Delete function on deleting a song
+	@RequestMapping("/songs/{id}/{eventId}/delete" )
+	public String destroySong( @PathVariable("id")Long id, 
+	        @PathVariable("eventId")Long eventId, HttpSession session) {
+	    Long userId = (Long) session.getAttribute("userId");
 
+	    if(userId == null) {
+            return "redirect:/logout";
+        }else {
+            songServ.deleteSongId(id);
+            return "redirect:/events/" + eventId;
+        }
+	}
 	
-	
+	// A Delete function on deleting a Musician
+	@RequestMapping("musicians/{id}/{eventId}/delete")
+	public String removeMusician(@PathVariable("id") Long id, 
+	        @PathVariable("eventId")Long eventId,
+	        HttpSession session) {
+	    Long userId = (Long) session.getAttribute("userId");
 
-	
-	
-	
+        if(userId == null) {
+            return "redirect:/logout";
+        }else {
+            musicianServ.deleteMusiciansId(id);
+            return "redirect:/events/" + eventId;
+        }
+	}
 	
 }

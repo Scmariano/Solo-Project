@@ -10,7 +10,7 @@
 <meta charset="ISO-8859-1">
 <link rel="stylesheet" href="/webjars/bootstrap/css/bootstrap.min.css" />
 <link rel="stylesheet" type="text/css" href="/css/style.css">
-<title>Create an Event</title>
+<title>Edit an Event</title>
 </head>
 <body>
 	<div class="main">
@@ -21,8 +21,9 @@
 				</div>
 				<div class="signup-content">				
 					<div class="signup-form">
-						<h2 class="form-title">Create Event</h2>
-						<form:form  action="/events/create" modelAttribute="sets" method="POST" class="col-5 mt-4 p-3 register-form">
+						<h2 class="form-title">Edit Event</h2>
+						<form:form action="/events/update/${set.id}" modelAttribute="set" method="POST"  class="col-5 mt-4 p-3 edit-form ">
+							<input type="hidden" name="_method" value="PUT" />
 							<div>
 								<form:errors path="*" class="text-danger"/>
 							</div>
@@ -36,7 +37,7 @@
 							</div>
 							<div class="form-group">
 								<form:label path="setDate" ></form:label>
-								<form:input path="setDate" type="date" />
+								<form:input path="setDate" type="date"/>
 							</div>
 							<div class="form-row">
 								<form:input type="hidden" path="user" value="${user.id}" class="form-control"/>
@@ -44,11 +45,11 @@
 							<div class="form-group form-button">
 								<input type="submit" name="signin" id="signin" class="form-submit" value="Submit" />
 							</div>
-						</form:form>		
+						</form:form>
 					</div>
 					<div class="signup-image">
 						<figure>
-							<img src="/assets/imgs/party.jpg" alt="sing up image">
+							<img src="/assets/imgs/create.png" alt="sing up image">
 						</figure>
 					</div>
 				</div>

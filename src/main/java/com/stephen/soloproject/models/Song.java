@@ -68,12 +68,12 @@ public class Song {
 
 	
 
-	public Song(Long id,
+	public Song(
 			String songTitle,
 			String artist,
 			String lyrics,
 			Set set, User creator) {
-		this.id = id;
+		
 		this.songTitle = songTitle;
 		this.artist = artist;
 		this.lyrics = lyrics;

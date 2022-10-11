@@ -34,7 +34,20 @@ public class SongServ {
 		return songRepo.save(song);
 	}
 	
-	public void deleteSong(Long id) {
-		songRepo.deleteById(id);
+	public void deleteSongId(Long id) {
+	    songRepo.deleteById(id);
+	}
+	
+	public void deleteSong(Song song) {
+		songRepo.delete(song);
 	} 
+	
+	public List<Song>setSongs(Long setId){
+	    return songRepo.findBySetId(setId);
+	}
+	
+	
+	
+	
+	
 }

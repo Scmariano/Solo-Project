@@ -3,6 +3,7 @@ package com.stephen.soloproject.models;
 import java.util.Date;
 import java.util.List;
 
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.FetchType;
@@ -10,6 +11,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.PrePersist;
@@ -20,6 +23,8 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
 import org.springframework.format.annotation.DateTimeFormat;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 
@@ -65,7 +70,16 @@ public class Set {
     @JoinColumn(name="user_id")
     private User user;
 	
+	@ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+        name = "likes", 
+        joinColumns = @JoinColumn(name = "set_id"), 
+        inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private List<User> likers;
+	
 	@OneToMany(mappedBy="set", fetch = FetchType.LAZY)
+	@JsonIgnore
 	private List<Song> songs;
 	
 	@OneToMany(mappedBy="set", fetch = FetchType.LAZY)
@@ -73,13 +87,15 @@ public class Set {
 	
 	public Set() {}
 
-	public Set(String setTitle, String address, Date setDate, User user,List<Song> songs, List<Musician> musicians) {
+	public Set(String setTitle, String address, Date setDate, User user,List<Song> songs, List<Musician> musicians, List<User> likers) {
 		this.setTitle = setTitle;
 		this.address = address;
 		this.setDate = setDate;
 		this.user = user;
 		this.songs = songs;
 		this.musicians = musicians;
+		this.likers = likers;
+		
 	}
 
 	public Long getId() {
@@ -152,6 +168,14 @@ public class Set {
 
 	public void setMusicians(List<Musician> musicians) {
 		this.musicians = musicians;
+	}
+
+	public List<User> getLikers() {
+		return likers;
+	}
+
+	public void setLikers(List<User> likers) {
+		this.likers = likers;
 	}
 
 	

@@ -10,5 +10,5 @@ import com.stephen.soloproject.models.Musician;
 @Repository
 public interface MusicianRepo extends CrudRepository <Musician,Long> {
 	public List<Musician>findAll();
-	
+	public List<Musician>findBySetId(Long id);
 }
