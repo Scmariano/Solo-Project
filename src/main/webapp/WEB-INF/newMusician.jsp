@@ -50,6 +50,30 @@
 					
 				</div>
 			</div>
+			<div class="container row mx-auto mt-3 p-4">
+				<table class="table table-striped table-bordered caption-top ">
+					<thead class="table-info">
+						<tr class="align-middle">
+							<th>Name</th>
+							<th>Instrument</th>	
+							<th>Action</th>											
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="musicians" items="${musicians}">
+							<c:if test="${musicians.set.id != set.id}">						
+							<tr>
+								<td>
+									<c:out value="${musicians.name}"/>
+								</td>													
+								<td><c:out value="${musicians.instrument}" /></td>	
+								<td> </td>														
+							</tr>
+							</c:if>
+						</c:forEach>
+					</tbody>				
+				</table>
+			</div>
 		</section>
 	</div>
 	

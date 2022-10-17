@@ -1,5 +1,7 @@
 package com.stephen.soloproject.controllers;
 
+
+
 import javax.servlet.http.HttpSession;
 import javax.validation.Valid;
 
@@ -73,59 +75,99 @@ public class SetController {
 	}
 	
 	// Show an Event with a Set List of Songs and Musicians
-	@GetMapping("/events/{id}")
-	public String showEvents(@PathVariable("id") Long id,
-	        HttpSession session, Model model) {
-		Long userId = (Long) session.getAttribute("userId");
-		if(userId == null) {
-			return "redirect:/logout";
-		} else {
-			
-			model.addAttribute("event", setServ.findSetId(id));
-			model.addAttribute("songs", songServ.allSongs());
-			model.addAttribute("user", userServ.findById(userId));
-			model.addAttribute("like", setServ.findLikerId(userId));
-			return "showEvent.jsp";
-		}
+    @GetMapping("/events/{id}")
+    public String showEvents(@PathVariable("id") Long id,
+            HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if(userId == null) {
+            return "redirect:/logout";
+        } else {
+            model.addAttribute("event", setServ.findSetId(id));          
+            model.addAttribute("user", userServ.findById(userId));
+            model.addAttribute("like", setServ.findLikerId(userId));
+            return "showEvent.jsp";
+        }
+    
+    }
 	
+  //GetMapping for rendering a new page for Adding a Song
+    @GetMapping("/songs/new/{setId}")
+    public String newSong( @PathVariable("setId") Long setId, HttpSession session, Model model,
+            @ModelAttribute("song") Song song) {
+        Long userId = (Long) session.getAttribute("userId");
+        if(userId == null) {
+            return "redirect:/logout";
+        }else {
+            model.addAttribute("set", setServ.findSetId(setId));
+            model.addAttribute("user", userServ.findById(userId));
+            model.addAttribute("songs", songServ.allSongs());
+            return "newSong.jsp";
+        }
+    }
+	
+	
+	//Add Song!
+	@GetMapping("/songs/{songId}/{eventId}/add")
+	public String addSong(
+	        @PathVariable("songId")Long songId,
+	        @PathVariable("eventId")Long eventId,
+	        HttpSession session,
+	        Model model) {
+	    Long userId = (Long) session.getAttribute("userId");
+	    Song song = songServ.findSongId(songId);
+	    Set set = setServ.findSetId(eventId);
+	    
+        if(userId == null) {
+            return "redirect:/logout";
+        }else {
+            setServ.addSongToSet(set, song);
+            return "redirect:/events/" + eventId;
+        }
 	}
 	
-	//GetMapping for rendering a new page for Adding a Song
-	@GetMapping("/songs/new/{id}")
-	public String newSong( @PathVariable("id") Long id, HttpSession session, Model model,
-	        @ModelAttribute("song") Song song) {
-		Long userId = (Long) session.getAttribute("userId");
-		if(userId == null) {
-			return "redirect:/logout";
-		}else {
-			model.addAttribute("set", setServ.findSetId(id));
-			model.addAttribute("user", userServ.findById(userId));
-			model.addAttribute("songs", songServ.allSongs());
-			return "newSong.jsp";
-		}
-	}
+	@GetMapping("/songs/{songId}/{eventId}/remove")
+    public String removeSong(
+            @PathVariable("songId")Long songId,
+            @PathVariable("eventId")Long eventId,
+            HttpSession session,
+            Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        Song song = songServ.findSongId(songId);
+        Set set = setServ.findSetId(eventId);
+        
+        if(userId == null) {
+            return "redirect:/logout";
+        }else {
+            setServ.removeSongToSet(set, song);
+            return "redirect:/events/" + eventId;
+        }
+    }
+	
 	
 	
 	//Create a Song!
-	@PostMapping("/songs/create")
-	public String createSong(@Valid @ModelAttribute("song") Song song, BindingResult result, HttpSession session,
-			Model model) {
-		Long userId = (Long) session.getAttribute("userId");
-		User loggedUser = userServ.findById(userId);
-		if(userId == null) {
-			return "redirect:/logout";
-		}
-		if(result.hasErrors()) {
-			return "newSong.jsp";
-		}
-		else {
-			song.setCreator(loggedUser);
-			songServ.createSong(song);
-			loggedUser.getSongs().add(song);
-			userServ.updateUser(loggedUser);
-			return "redirect:/events/" + song.getSet().getId();
-		}
-	}
+    @PostMapping("/songs/create/{eventId}")
+    public String createSong(@Valid @ModelAttribute("song") Song song, BindingResult result, HttpSession session,
+            @PathVariable Long eventId,
+            Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        User loggedUser = userServ.findById(userId);
+        if(userId == null) {
+            return "redirect:/logout";
+        }
+        if(result.hasErrors()) {
+            return "newSong.jsp";
+        }
+        else {
+            song.setCreator(loggedUser);
+            songServ.createSong(song);
+            loggedUser.getSongs().add(song);
+            userServ.updateUser(loggedUser);
+            return "redirect:/songs/new/" + eventId ;
+        }
+    }
+	
+	
 
 	//GetMapping for rendering a page for creating a Musician
 	@GetMapping("/musicians/new/{id}")
@@ -136,6 +178,7 @@ public class SetController {
 			return "redirect:/logout";
 		}else {
 			model.addAttribute("set", setServ.findSetId(id));
+			model.addAttribute("musicians", musicianServ.allMusicians());
 			return "newMusician.jsp";
 		}
 	}
@@ -215,10 +258,10 @@ public class SetController {
 	}
 	
 	//Update an event
-	@PutMapping("events/update/{id}")
-	public String updateSet(@Valid @ModelAttribute("set")Set set, BindingResult result, HttpSession session) {
+	@PutMapping("events/update/{eventId}")
+	public String updateSet(@Valid @ModelAttribute("set")Set set, BindingResult result, HttpSession session
+	       ) {
 	    Long userId = (Long) session.getAttribute("userId");
-        
         if(userId == null) {
             return "redirect:/logout";
         }
@@ -226,6 +269,7 @@ public class SetController {
         if (result.hasErrors()) {
             return "editSet.jsp";
         }else {
+            
             setServ.updateSet(set);
             return "redirect:/dashboard";
         }

@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+
 import com.stephen.soloproject.models.Song;
 import com.stephen.soloproject.repositories.SongRepo;
 
@@ -43,7 +44,7 @@ public class SongServ {
 	} 
 	
 	public List<Song>setSongs(Long setId){
-	    return songRepo.findBySetId(setId);
+	    return songRepo.findBySongsSetId(setId);
 	}
 	
 	

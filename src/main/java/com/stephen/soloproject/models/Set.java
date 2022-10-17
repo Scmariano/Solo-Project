@@ -78,6 +78,15 @@ public class Set {
     )
     private List<User> likers;
 	
+	@ManyToMany(fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "set_songs",
+            joinColumns = @JoinColumn(name = "set_id"),
+            inverseJoinColumns = @JoinColumn(name = "song_id")
+    )
+	private List<Song> setSongs;
+	
+	
 	@OneToMany(mappedBy="set", fetch = FetchType.LAZY)
 	@JsonIgnore
 	private List<Song> songs;
@@ -177,6 +186,14 @@ public class Set {
 	public void setLikers(List<User> likers) {
 		this.likers = likers;
 	}
+
+    public List<Song> getSetSongs() {
+        return setSongs;
+    }
+
+    public void setSetSongs(List<Song> setSongs) {
+        this.setSongs = setSongs;
+    }
 
 	
 	

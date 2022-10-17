@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.stephen.soloproject.models.Set;
+import com.stephen.soloproject.models.Song;
 import com.stephen.soloproject.models.User;
 import com.stephen.soloproject.repositories.SetRepo;
 
@@ -54,6 +55,14 @@ public class SetServ {
 		}
 	}
 	
+	public Set findAddedSongId(Long songId) {
+	    Optional<Set>optAddedSong = setRepo.findSetSongsById(songId);
+	    if(optAddedSong.isPresent()) {
+	        return optAddedSong.get();
+	    }else {
+	        return null;
+	    }
+	}
 	
 
 	//like
@@ -69,7 +78,28 @@ public class SetServ {
 		likers.remove(userId);
 		setRepo.save(set);
 	}
+	
+	//addSong to Set
+	public void addSongToSet(Set set, Song songId) {
+        List<Song> addSong = set.getSetSongs();
+        addSong.add(songId);
+        setRepo.save(set);
+    }
+	
+	public void removeSongToSet(Set set, Song songId) {
+	    List<Song>removeSong = set.getSetSongs();
+	    removeSong.remove(songId);
+	    setRepo.save(set);
+	}
+	
+	public List<Set>getSongs(Song song){
+        return setRepo.findAllBySetSongs(song);
+    }
 
+	public List<Set>notInSet(Song song){
+        return setRepo.findBySetSongsNotContains(song);
+    }
+	
 	
 	
 }

@@ -22,7 +22,7 @@
 				<div class="signup-content">				
 					<div class="signup-form">
 						<h2 class="form-title">Add a Song</h2>
-						<form:form action="/songs/create" modelAttribute="song" method="POST" class="col-5 mt-4 p-3 song-form ">
+						<form:form action="/songs/create/${set.id}" modelAttribute="song" method="POST" class="col-5 mt-4 p-3 song-form ">
 							<div>
 								<form:errors path="*" class="text-danger"/>
 							</div>
@@ -40,11 +40,12 @@
 								<form:textarea  path="lyrics" placeholder="Lyrics" />
 							</div>
 							<div class="form-row">
-								<form:input type="hidden" path="set" value="${set.id}" class="form-control"/>
-							</div>
-							<div class="form-row">
 								<form:input type="hidden" path="creator" value="${creator.id}" class="form-control"/>
 							</div>
+							<div class="form-row">
+								<form:input type="hidden" path="songsSet" value="${set.id}" class="form-control"/>
+							</div>
+							
 							<div class="form-group form-button">
 								<input type="submit"  class="form-submit" value="Submit" />
 							</div>
@@ -55,8 +56,35 @@
 							<img src="/assets/imgs/create.png" alt="sing up image">
 						</figure>
 					</div>
-				</div>
-				
+				</div>	
+			</div>
+			<div class="container row mx-auto mt-3 p-4">
+				<table class="table table-striped table-bordered caption-top ">
+					<thead class="table-info">
+						<tr class="align-middle">
+							<th>Title</th>
+							<th>Artist</th>							
+							<th>Posted By</th>
+							<th>Action</th>						
+						</tr>
+					</thead>
+					<tbody>
+						<c:forEach var="song" items="${set.setSongs}">
+							<c:if test="${songsSet.id == setSongs.id}">						
+							<tr>
+								<td>
+									<a href="/songs/${song.id}" class="nav-link"><c:out value="${song.songTitle}"/></a>
+								</td>													
+								<td><c:out value="${song.artist}" /></td>
+								<td><c:out value="${song.creator.name}" /></td>
+								<td>																		
+									<a href="/songs/${song.id}/${set.id}/add" class="nav-link">Add Song</a>							
+								</td>
+							</tr>
+							</c:if>
+						</c:forEach>
+					</tbody>				
+				</table>
 			</div>
 		</section>
 	</div>

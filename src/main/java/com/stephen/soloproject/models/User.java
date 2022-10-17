@@ -82,7 +82,7 @@ public class User {
         inverseJoinColumns = @JoinColumn(name = "set_id")
     )
     private List<Set> setLiked;
-	
+
 	public User() {}
 
 	public Long getId() {

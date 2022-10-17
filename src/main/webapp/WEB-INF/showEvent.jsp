@@ -25,7 +25,7 @@
 					<div class=" d-flex justify-content-end ">
 						<a href="/dashboard" class="nav-link image-link">Home</a>
 						<c:if test="${event.user.id == user.id}">
-							<a href="/songs/new/${event.id}" class="nav-link image-link">Add Song</a>
+							<a href="/songs/new/${event.id }" class="nav-link image-link">Add Song</a>
 						</c:if>
 						<c:if test="${event.user.id == user.id}">
 							<a href="/musicians/new/${event.id}" class="nav-link image-link">Add Musician</a>
@@ -53,11 +53,11 @@
 						<h3 class = "text-center p-3">Song List</h3>
 						<div>
 							<ul>
-								<c:forEach var="song" items="${event.songs}">
+								<c:forEach var="song" items="${event.setSongs}">
 									<li class=" d-flex justify-content-between">
 										<a href="/songs/${song.id}" class="nav-link"><c:out value="${song.songTitle}" /></a>
 										<c:if test="${event.user.id == user.id}"> 
-											<a href="/songs/${song.id}/${event.id}/delete" class="nav-link text-danger">Delete</a>
+											<a href="/songs/${song.id}/${event.id}/remove" class="nav-link text-danger">Remove</a>
 										</c:if>
 									</li>
 								</c:forEach>
